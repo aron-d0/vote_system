@@ -10,9 +10,10 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'is_admin', 'voter_id'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'is_admin', 'voter_id', 'api_token'])]
+#[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -49,5 +50,13 @@ class User extends Authenticatable
     {
         $voterId = $this->generateVoterId();
         return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($voterId);
+    }
+
+    public function createApiToken(): string
+    {
+        $this->api_token = Str::random(80);
+        $this->save();
+
+        return $this->api_token;
     }
 }
