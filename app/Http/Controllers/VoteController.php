@@ -15,35 +15,27 @@ class VoteController extends Controller
         return view('votes.index', compact('votes'));
     }
 
-    public function create(Election $selectedElection = null)
+    public function create(?Election $selectedElection = null)
     {
         $elections = Election::active()->with('candidates')->get();
 
-        // Check if user has already voted for any active election
-        foreach ($elections as $election) {
-            $userHasVoted = Vote::where('user_id', auth()->id())
-                ->where('election_id', $election->id)
-                ->exists();
+        $votedElectionIds = Vote::where('user_id', auth()->id())
+            ->whereIn('election_id', $elections->pluck('id'))
+            ->pluck('election_id')
+            ->unique()
+            ->toArray();
 
-            if ($userHasVoted) {
-                return redirect()->route('dashboard')
-                    ->with('info', "You have already voted in the {$election->title} election. You can only vote once per election.");
-            }
+        if ($selectedElection && in_array($selectedElection->id, $votedElectionIds, true)) {
+            return redirect()->route('dashboard')
+                ->with('info', "You have already voted in the {$selectedElection->title} election. You can only vote once per election.");
         }
 
-        // If a specific election is selected, check if user has already voted for it
-        if ($selectedElection) {
-            $userHasVoted = Vote::where('user_id', auth()->id())
-                ->where('election_id', $selectedElection->id)
-                ->exists();
-
-            if ($userHasVoted) {
-                return redirect()->route('dashboard')
-                    ->with('info', "You have already voted in the {$selectedElection->title} election. You can only vote once per election.");
-            }
+        if ($elections->isNotEmpty() && count($votedElectionIds) >= $elections->count()) {
+            return redirect()->route('dashboard')
+                ->with('info', 'You have already voted in all active elections.');
         }
 
-        return view('votes.create', compact('elections', 'selectedElection'));
+        return view('votes.create', compact('elections', 'selectedElection', 'votedElectionIds'));
     }
 
     public function store(Request $request)

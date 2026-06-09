@@ -93,7 +93,7 @@
                         </div>
                         @error('senator_candidates')<p class="text-red-600 text-sm mt-2">{{ $message }}</p>@enderror
                         @error('senator_candidates.*')<p class="text-red-600 text-sm mt-2">{{ $message }}</p>@enderror
-                        <p id="senator-count" class="text-sm text-gray-600 mt-2">Selected 0 of 3</p>
+                        <p class="senator-count text-sm text-gray-600 mt-2">Selected 0 of 3</p>
                     </div>
                 </div>
             </div>
@@ -145,7 +145,7 @@
 
         function updateSenatorCounter(section) {
             const checkboxes = section.querySelectorAll('.senator-checkbox');
-            const countEl = section.querySelector('#senator-count');
+            const countEl = section.querySelector('.senator-count');
             if (! countEl) return;
             let selected = 0;
             checkboxes.forEach(cb => { if (cb.checked) selected++; });
