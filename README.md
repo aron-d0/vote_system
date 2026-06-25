@@ -88,10 +88,13 @@ APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-railway-domain.up.railway.app
 APP_FORCE_HTTPS=true
+DB_CONNECTION=sqlite
 SESSION_SECURE_COOKIE=true
 ```
 
 Replace `your-railway-domain.up.railway.app` with the actual Railway domain. These values prevent browser warnings such as "The information you're about to submit is not secure" during login, logout, and registration.
+
+Do not set `DB_DATABASE` to a local machine path such as `C:\Users\...` or `/Users/...` on Railway. The Docker startup script creates and uses the SQLite database inside the deployed container.
 
 ## Default Accounts
 

@@ -20,6 +20,8 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+RUN chmod +x docker-entrypoint.sh
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
@@ -42,4 +44,6 @@ RUN php artisan view:clear || true
 
 EXPOSE 8080
 
-CMD php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=8080
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+CMD ["sh", "-c", "php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
