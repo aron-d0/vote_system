@@ -30,6 +30,28 @@
 
             <!-- Page Content -->
             <main class="flex-1">
+                @if (session('success') || session('info') || $errors->any())
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-3">
+                        @if (session('success'))
+                            <div class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if (session('info'))
+                            <div class="rounded-md border border-blue-300 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                                {{ session('info') }}
+                            </div>
+                        @endif
+
+                        @if ($errors->any())
+                            <div class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+                                Please review the highlighted fields and try again.
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 @yield('content')
 
                 @isset($slot)

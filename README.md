@@ -1,58 +1,190 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# VoteHub Online Voting System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+VoteHub is a Laravel-based online voting system created as a final project for ELECTIVE 1. The system supports voter registration, authenticated login, election and candidate management, ballot submission, vote receipts, public result viewing, and admin-only analytics.
 
-## About Laravel
+## Project Members
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Mariphil Marigmen
+- Mariella Ovido
+- Manuelito Latiza
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Main Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- User registration and login
+- Admin and voter role separation
+- Election management for admins
+- Candidate management for admins
+- Active-election voting window using start and end date/time
+- Ballot submission with one President, one Vice President, and up to three Senators
+- One completed ballot per voter per election
+- Vote receipt page with optional print action
+- Public election result endpoint
+- Admin-only result and analytics endpoints
+- Token-based API authentication for protected API calls
 
-## Learning Laravel
+## Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3
+- Laravel 13
+- SQLite
+- Blade templates
+- Tailwind CSS
+- Alpine.js
+- Vite
+- Pest / PHPUnit
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Clone the repository, then install PHP and JavaScript dependencies:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Create the environment file and application key:
 
-## Contributing
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Create the SQLite database if it does not exist:
 
-## Code of Conduct
+```bash
+touch database/database.sqlite
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Run migrations and seeders:
 
-## Security Vulnerabilities
+```bash
+php artisan migrate --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Build frontend assets:
 
-## License
+```bash
+npm run build
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Start the local server:
+
+```bash
+php artisan serve
+```
+
+The application will usually run at:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Default Accounts
+
+After running the seeders, the following accounts are available:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | admin@example.com | password123 |
+| Voter | test@example.com | password |
+
+Newly registered users are not logged in automatically. After registration, users are redirected to the login page and must enter their credentials before accessing the dashboard.
+
+## Web Authentication Flow
+
+1. Open the system in the browser.
+2. Register a voter account or use one of the seeded accounts.
+3. Log in using email and password.
+4. The dashboard redirects users based on their role:
+   - Admins can manage elections, candidates, results, and analytics.
+   - Voters can view active elections and submit ballots.
+5. Log out from the account menu when finished.
+
+## API Authentication Flow
+
+The API uses bearer token authentication. Public endpoints can be viewed without a token, but protected endpoints require a token from `/api/login`.
+
+### Login And Get Token
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/login \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"password123"}'
+```
+
+The response includes a token:
+
+```json
+{
+  "token": "generated-api-token",
+  "token_type": "Bearer",
+  "user": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "is_admin": true
+  }
+}
+```
+
+### Access Protected Endpoint
+
+Use the token in the `Authorization` header:
+
+```bash
+curl http://127.0.0.1:8000/api/user \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer generated-api-token"
+```
+
+### Logout API Token
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/logout \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer generated-api-token"
+```
+
+## API Route Summary
+
+Public endpoints:
+
+- `POST /api/login`
+- `GET /api/candidates`
+- `GET /api/candidates/{candidate}`
+- `GET /api/elections`
+- `GET /api/elections/{election}`
+- `GET /api/elections/{election}/candidates`
+- `GET /api/elections/{election}/results/public`
+
+Authenticated voter endpoints:
+
+- `GET /api/user`
+- `POST /api/logout`
+- `POST /api/votes`
+- `GET /api/votes`
+
+Authenticated admin endpoints:
+
+- `POST /api/elections`
+- `PUT/PATCH /api/elections/{election}`
+- `DELETE /api/elections/{election}`
+- `POST /api/candidates`
+- `PUT/PATCH /api/candidates/{candidate}`
+- `DELETE /api/candidates/{candidate}`
+- `GET /api/elections/{election}/results`
+- `GET /api/elections/{election}/results/summary`
+
+## Running Tests
+
+```bash
+php artisan test
+```
+
+## Notes
+
+- Only active elections can be voted on.
+- Voters can vote only once per election.
+- Admin routes are protected by authentication and admin middleware.
+- API protected routes require `Authorization: Bearer <token>`.

@@ -7,6 +7,7 @@
   {"method":"GET","uri":"/api/elections/{election}/results/public","action":"App\\Http\\Controllers\\Api\\ResultApiController@publicResults","middleware":[],"description":"Get public election results."},
   {"method":"POST","uri":"/api/login","action":"App\\Http\\Controllers\\Api\\AuthController@login","middleware":[],"description":"Login and get an API token."},
   {"method":"GET","uri":"/api/user","action":"Closure","middleware":["auth:api"],"description":"Get the authenticated user."},
+  {"method":"POST","uri":"/api/logout","action":"App\\Http\\Controllers\\Api\\AuthController@logout","middleware":["auth:api"],"description":"Revoke the authenticated user's API token."},
   {"method":"POST","uri":"/api/votes","action":"App\\Http\\Controllers\\Api\\VoteApiController@store","middleware":["auth:api"],"description":"Submit a vote."},
   {"method":"GET","uri":"/api/votes","action":"App\\Http\\Controllers\\Api\\VoteApiController@userVotes","middleware":["auth:api"],"description":"Get authenticated user's votes."},
   {"method":"GET","uri":"/api/elections/{election}/results","action":"App\\Http\\Controllers\\Api\\ResultApiController@show","middleware":["auth:api","is_admin"],"description":"Admin-only election results."},

@@ -25,6 +25,16 @@ class AuthController extends Controller
         return response()->json([
             'token' => $user->createApiToken(),
             'token_type' => 'Bearer',
+            'user' => $user->only(['id', 'name', 'email', 'is_admin']),
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->forceFill([
+            'api_token' => null,
+        ])->save();
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }

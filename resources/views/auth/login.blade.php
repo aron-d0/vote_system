@@ -1,4 +1,11 @@
 <x-guest-layout>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Log in to VoteHub</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Enter your registered email and password to access the voting system.
+        </p>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

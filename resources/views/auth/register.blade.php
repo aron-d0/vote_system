@@ -1,4 +1,11 @@
 <x-guest-layout>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Create Voter Account</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            After registration, log in with your credentials before entering the system.
+        </p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

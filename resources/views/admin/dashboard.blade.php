@@ -70,15 +70,11 @@
                         📱 Voter QR
                     </a>
 
-                    <!-- Quick Seed Button -->
-                    <form action="{{ route('elections.store') }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" 
-                                class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 
-                                       px-5 py-2 rounded-md text-white shadow-md transition font-semibold">
-                            ⚡ Quick Seed
-                        </button>
-                    </form>
+                    <a href="{{ route('elections.create') }}"
+                       class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600
+                              px-5 py-2 rounded-md text-white shadow-md transition font-semibold">
+                        Create Election
+                    </a>
                 </div>
             </div>
         </div>

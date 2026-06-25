@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Election;
-use App\Models\Candidate;
-use App\Models\Vote;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Candidate;
+use App\Models\Election;
+use App\Models\Vote;
 
 class ResultApiController extends Controller
 {
@@ -24,7 +23,7 @@ class ResultApiController extends Controller
         foreach ($positions as $position) {
             $candidates = $election->candidates()
                 ->where('position', $position)
-                ->withCount(['votes' => function ($query) use ($election) {
+                ->withCount(['votes' => function ($query) use ($election, $position) {
                     $query->where('election_id', $election->id)->where('position', $position);
                 }])
                 ->orderByDesc('votes_count')
@@ -78,7 +77,7 @@ class ResultApiController extends Controller
     {
         // Public results - no authorization needed
         $totalVotes = Vote::where('election_id', $election->id)->distinct('user_id')->count('user_id');
-        
+
         $results = [];
         $positions = [Candidate::POSITION_PRESIDENT, Candidate::POSITION_VICE, Candidate::POSITION_SENATOR];
 

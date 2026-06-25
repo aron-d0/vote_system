@@ -6,18 +6,26 @@ use App\Models\Candidate;
 use App\Models\Election;
 use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
     public function index()
     {
         $votes = auth()->user()->votes()->with(['candidate', 'election'])->get();
+
         return view('votes.index', compact('votes'));
     }
 
-    public function create(?Election $selectedElection = null)
+    public function create(?Election $election = null)
     {
+        $selectedElection = $election;
         $elections = Election::active()->with('candidates')->get();
+
+        if ($selectedElection && ! $selectedElection->isActive()) {
+            return redirect()->route('dashboard')
+                ->with('info', "The {$selectedElection->title} election is not currently open for voting.");
+        }
 
         $votedElectionIds = Vote::where('user_id', auth()->id())
             ->whereIn('election_id', $elections->pluck('id'))
@@ -109,18 +117,23 @@ class VoteController extends Controller
             return back()->withErrors(['senator_candidates' => 'Senator selections must belong to the chosen election.'])->withInput();
         }
 
+        $timestamp = now();
         $votes = [
             [
                 'user_id' => auth()->id(),
                 'candidate_id' => $presidentCandidate->id,
                 'election_id' => $election->id,
                 'position' => Candidate::POSITION_PRESIDENT,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ],
             [
                 'user_id' => auth()->id(),
                 'candidate_id' => $viceCandidate->id,
                 'election_id' => $election->id,
                 'position' => Candidate::POSITION_VICE,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ],
         ];
 
@@ -130,10 +143,12 @@ class VoteController extends Controller
                 'candidate_id' => $senatorId,
                 'election_id' => $election->id,
                 'position' => Candidate::POSITION_SENATOR,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
             ];
         }
 
-        Vote::insert($votes);
+        DB::transaction(fn () => Vote::insert($votes));
 
         session()->flash('vote_receipt', [
             'election' => $election->title,

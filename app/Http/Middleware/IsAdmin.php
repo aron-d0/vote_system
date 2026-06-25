@@ -15,13 +15,12 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if user is logged in AND has is_admin = true
-        if (auth()->check() && auth()->user()->is_admin) {
+        $user = $request->user();
+
+        if ($user && $user->is_admin) {
             return $next($request);
         }
 
-        // Otherwise block access
         abort(403, 'Unauthorized');
     }
 }
-
