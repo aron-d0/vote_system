@@ -79,6 +79,20 @@ The application will usually run at:
 http://127.0.0.1:8000
 ```
 
+## Railway Deployment Settings
+
+For Railway, set these environment variables so Laravel generates secure HTTPS form actions and cookies behind Railway's proxy:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-railway-domain.up.railway.app
+APP_FORCE_HTTPS=true
+SESSION_SECURE_COOKIE=true
+```
+
+Replace `your-railway-domain.up.railway.app` with the actual Railway domain. These values prevent browser warnings such as "The information you're about to submit is not secure" during login, logout, and registration.
+
 ## Default Accounts
 
 After running the seeders, the following accounts are available:
