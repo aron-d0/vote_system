@@ -97,3 +97,48 @@ test('an admin API token can create an election through admin middleware', funct
         'description' => 'Created through the API.',
     ]);
 });
+
+test('an admin API token can patch an election without resending every field', function () {
+    $election = Election::create([
+        'title' => 'Original API Election',
+        'description' => 'Before patch.',
+        'start_at' => now()->addDay(),
+        'end_at' => now()->addDays(2),
+    ]);
+
+    $admin = User::factory()->create([
+        'is_admin' => true,
+        'api_token' => 'patch-admin-token',
+    ]);
+
+    $this
+        ->withHeader('Authorization', 'Bearer '.$admin->api_token)
+        ->patchJson("/api/elections/{$election->id}", [
+            'title' => 'Patched API Election',
+        ])
+        ->assertOk()
+        ->assertJsonPath('title', 'Patched API Election');
+
+    expect($election->fresh()->description)->toBe('Before patch.');
+});
+
+test('a voter can submit a ballot through the api with a bearer token', function () {
+    [$election, $president, $vicePresident, $senators] = createElectionWithCandidates();
+    $user = User::factory()->create([
+        'api_token' => 'voter-api-token',
+    ]);
+
+    $response = $this
+        ->withHeader('Authorization', 'Bearer '.$user->api_token)
+        ->postJson('/api/votes', [
+            'election_id' => $election->id,
+            'president_candidate' => $president->id,
+            'vice_president_candidate' => $vicePresident->id,
+            'senator_candidates' => $senators->take(3)->pluck('id')->all(),
+        ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('message', 'Vote submitted successfully')
+        ->assertJsonCount(5, 'votes')
+        ->assertJsonPath('votes.0.election.title', 'Student Council 2026');
+});

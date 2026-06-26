@@ -46,12 +46,12 @@ class ElectionApiController extends Controller
     public function update(Request $request, Election $election)
     {
         $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_at' => 'required_without:start_date|date',
-            'end_at' => 'required_without:end_date|date|after_or_equal:start_at',
-            'start_date' => 'required_without:start_at|date',
-            'end_date' => 'required_without:end_at|date|after_or_equal:start_date',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'start_at' => 'sometimes|required_without:start_date|date',
+            'end_at' => 'sometimes|required_without:end_date|date|after_or_equal:start_at',
+            'start_date' => 'sometimes|required_without:start_at|date',
+            'end_date' => 'sometimes|required_without:end_at|date|after_or_equal:start_date',
         ]);
 
         if (! isset($data['start_at']) && isset($data['start_date'])) {

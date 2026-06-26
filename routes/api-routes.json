@@ -5,6 +5,7 @@
   {"method":"GET","uri":"/api/elections/{election}","action":"App\\Http\\Controllers\\Api\\ElectionApiController@show","middleware":[],"description":"Get election details."},
   {"method":"GET","uri":"/api/elections/{election}/candidates","action":"App\\Http\\Controllers\\Api\\CandidateApiController@byElection","middleware":[],"description":"List candidates for an election."},
   {"method":"GET","uri":"/api/elections/{election}/results/public","action":"App\\Http\\Controllers\\Api\\ResultApiController@publicResults","middleware":[],"description":"Get public election results."},
+  {"method":"POST","uri":"/api/register","action":"App\\Http\\Controllers\\Api\\AuthController@register","middleware":[],"description":"Register a voter account. The user must log in afterward to receive an API token."},
   {"method":"POST","uri":"/api/login","action":"App\\Http\\Controllers\\Api\\AuthController@login","middleware":[],"description":"Login and get an API token."},
   {"method":"GET","uri":"/api/user","action":"Closure","middleware":["auth:api"],"description":"Get the authenticated user."},
   {"method":"POST","uri":"/api/logout","action":"App\\Http\\Controllers\\Api\\AuthController@logout","middleware":["auth:api"],"description":"Revoke the authenticated user's API token."},

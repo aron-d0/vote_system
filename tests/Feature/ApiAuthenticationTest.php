@@ -2,6 +2,25 @@
 
 use App\Models\User;
 
+test('api register creates a voter account without returning a token', function () {
+    $response = $this->postJson('/api/register', [
+        'name' => 'Postman Demo Voter',
+        'email' => 'postman-voter@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('message', 'Account created successfully. Please log in to get an API token.')
+        ->assertJsonPath('user.email', 'postman-voter@example.com')
+        ->assertJsonMissingPath('token');
+
+    $this->assertDatabaseHas('users', [
+        'email' => 'postman-voter@example.com',
+        'is_admin' => false,
+    ]);
+});
+
 test('api login returns a bearer token for valid credentials', function () {
     $user = User::factory()->create([
         'email' => 'voter@example.com',

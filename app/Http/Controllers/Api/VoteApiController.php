@@ -79,12 +79,20 @@ class VoteApiController extends Controller
 
         DB::transaction(fn () => Vote::insert($votes));
 
-        return response()->json(['message' => 'Vote submitted successfully', 'votes' => $votes], 201);
+        $createdVotes = Vote::where('user_id', $user->id)
+            ->where('election_id', $election->id)
+            ->with(['candidate:id,name,position', 'election:id,title'])
+            ->get(['id', 'user_id', 'candidate_id', 'election_id', 'position', 'created_at']);
+
+        return response()->json([
+            'message' => 'Vote submitted successfully',
+            'votes' => $createdVotes,
+        ], 201);
     }
 
-    public function userVotes()
+    public function userVotes(Request $request)
     {
-        $votes = auth()->user()->votes()
+        $votes = $request->user()->votes()
             ->with(['candidate', 'election'])
             ->get();
 

@@ -22,6 +22,7 @@ Route::get('/elections', [ElectionApiController::class, 'index']);
 Route::get('/elections/{election}', [ElectionApiController::class, 'show']);
 Route::get('/elections/{election}/candidates', [CandidateApiController::class, 'byElection']);
 Route::get('/elections/{election}/results/public', [ResultApiController::class, 'publicResults']);
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Authenticated endpoints

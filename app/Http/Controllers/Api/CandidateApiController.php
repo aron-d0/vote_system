@@ -36,9 +36,9 @@ class CandidateApiController extends Controller
     public function update(Request $request, Candidate $candidate)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'election_id' => 'required|exists:elections,id',
-            'position' => 'required|in:' . implode(',', Candidate::positions()),
+            'name' => 'sometimes|required|string|max:255',
+            'election_id' => 'sometimes|required|exists:elections,id',
+            'position' => 'sometimes|required|in:' . implode(',', Candidate::positions()),
         ]);
 
         $candidate->update($request->only(['name', 'election_id', 'position']));
