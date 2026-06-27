@@ -22,26 +22,21 @@ test('seeded demo accounts can authenticate with documented passwords', function
     Auth::logout();
 
     expect(Auth::attempt([
-        'email' => 'aron@example.com',
-        'password' => '12345678',
-    ]))->toBeTrue();
-
-    Auth::logout();
-
-    expect(Auth::attempt([
         'email' => 'mariphilmarigmen11@gmail.com',
         'password' => '12345678',
     ]))->toBeTrue();
+
+    expect(User::where('email', 'aron@example.com')->exists())->toBeFalse();
 });
 
 test('web login normalizes email casing and spaces', function () {
     User::factory()->create([
-        'email' => 'aron@example.com',
+        'email' => 'mariphilmarigmen11@gmail.com',
         'password' => '12345678',
     ]);
 
     $this->post('/login', [
-        'email' => '  ARON@EXAMPLE.COM  ',
+        'email' => '  MARIPHILMARIGMEN11@GMAIL.COM  ',
         'password' => '12345678',
     ])->assertRedirect(route('dashboard', absolute: false));
 

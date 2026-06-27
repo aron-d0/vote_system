@@ -18,16 +18,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        User::where('email', 'aron@example.com')->delete();
+
         $demoUsers = [
             [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
                 'password' => 'password',
-            ],
-            [
-                'name' => 'Aron Demo User',
-                'email' => 'aron@example.com',
-                'password' => '12345678',
             ],
             [
                 'name' => 'Mariphil Marigmen',
