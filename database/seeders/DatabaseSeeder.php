@@ -18,13 +18,34 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::updateOrCreate(
-            ['email' => 'test@example.com'],
+        $demoUsers = [
             [
                 'name' => 'Test User',
-                'password' => Hash::make('password'),
-            ]
-        );
+                'email' => 'test@example.com',
+                'password' => 'password',
+            ],
+            [
+                'name' => 'Aron Demo User',
+                'email' => 'aron@example.com',
+                'password' => '12345678',
+            ],
+            [
+                'name' => 'Mariphil Marigmen',
+                'email' => 'mariphilmarigmen11@gmail.com',
+                'password' => '12345678',
+            ],
+        ];
+
+        foreach ($demoUsers as $demoUser) {
+            User::updateOrCreate(
+                ['email' => $demoUser['email']],
+                [
+                    'name' => $demoUser['name'],
+                    'password' => Hash::make($demoUser['password']),
+                    'is_admin' => false,
+                ]
+            );
+        }
 
         $this->call(AdminUserSeeder::class);
         $this->call(SampleElectionSeeder::class);
