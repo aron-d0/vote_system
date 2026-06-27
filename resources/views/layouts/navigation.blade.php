@@ -33,11 +33,11 @@
                             </x-slot>
 
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('admin.dashboard')">📊 Dashboard</x-dropdown-link>
-                                <x-dropdown-link :href="route('elections.index')">🗳️ Manage Elections</x-dropdown-link>
-                                <x-dropdown-link :href="route('candidates.index')">👥 Manage Candidates</x-dropdown-link>
-                                <x-dropdown-link :href="route('elections.index')">📈 Analytics</x-dropdown-link>
-                                <x-dropdown-link :href="route('voter.verification')">🔍 Voter Verification</x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.dashboard')">Dashboard</x-dropdown-link>
+                                <x-dropdown-link :href="route('elections.index')">Manage Elections</x-dropdown-link>
+                                <x-dropdown-link :href="route('candidates.index')">Manage Candidates</x-dropdown-link>
+                                <x-dropdown-link :href="route('elections.index')">Results & Analytics</x-dropdown-link>
+                                <x-dropdown-link :href="route('voter.verification')">Voter Verification</x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
                     @endif
@@ -90,6 +90,25 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 Dashboard
             </x-responsive-nav-link>
+
+            @if(auth()->user() && auth()->user()->is_admin)
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    Admin Dashboard
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('elections.index')" :active="request()->routeIs('elections.*')">
+                    Elections
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('candidates.index')" :active="request()->routeIs('candidates.*')">
+                    Candidates
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('votes.create')" :active="request()->routeIs('votes.create')">
+                    Vote
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('votes.index')" :active="request()->routeIs('votes.index')">
+                    My Ballots
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

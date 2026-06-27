@@ -10,7 +10,12 @@ class CandidateController extends Controller
 {
     public function index()
     {
-        $candidates = Candidate::with('election')->get();
+        $candidates = Candidate::with('election')
+            ->orderBy('election_id')
+            ->orderBy('position')
+            ->orderBy('name')
+            ->get();
+
         return view('candidates.index', compact('candidates'));
     }
 
@@ -27,6 +32,8 @@ class CandidateController extends Controller
             'name' => 'required|string|max:255',
             'election_id' => 'required|exists:elections,id',
             'position' => 'required|in:' . implode(',', Candidate::positions()),
+        ], [
+            'position.in' => 'Choose a valid ballot position.',
         ]);
 
         Candidate::create($request->only(['name', 'election_id', 'position']));
@@ -52,6 +59,8 @@ class CandidateController extends Controller
             'name' => 'required|string|max:255',
             'election_id' => 'required|exists:elections,id',
             'position' => 'required|in:' . implode(',', Candidate::positions()),
+        ], [
+            'position.in' => 'Choose a valid ballot position.',
         ]);
 
         $candidate->update($request->only(['name', 'election_id', 'position']));

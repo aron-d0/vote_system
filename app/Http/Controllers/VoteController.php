@@ -12,15 +12,27 @@ class VoteController extends Controller
 {
     public function index()
     {
-        $votes = auth()->user()->votes()->with(['candidate', 'election'])->get();
+        $votes = auth()->user()->votes()
+            ->with(['candidate', 'election'])
+            ->latest()
+            ->get()
+            ->groupBy('election_id');
 
         return view('votes.index', compact('votes'));
     }
 
     public function create(?Election $election = null)
     {
+        if (auth()->user()->is_admin) {
+            return redirect()->route('admin.dashboard')
+                ->with('info', 'Admin accounts manage elections and cannot submit ballots.');
+        }
+
         $selectedElection = $election;
-        $elections = Election::active()->with('candidates')->get();
+        $elections = Election::active()
+            ->with(['candidates' => fn ($query) => $query->orderBy('position')->orderBy('name')])
+            ->orderBy('end_at')
+            ->get();
 
         if ($selectedElection && ! $selectedElection->isActive()) {
             return redirect()->route('dashboard')
@@ -48,6 +60,11 @@ class VoteController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user()->is_admin) {
+            return redirect()->route('admin.dashboard')
+                ->with('info', 'Admin accounts manage elections and cannot submit ballots.');
+        }
+
         $request->validate([
             'election_id' => 'required|exists:elections,id',
             'president_candidate' => 'required|exists:candidates,id',
@@ -63,22 +80,11 @@ class VoteController extends Controller
             return back()->withErrors(['election_id' => 'This election is not currently active.'])->withInput();
         }
 
-        $hasPresident = Vote::where('user_id', auth()->id())
+        $hasVotes = Vote::where('user_id', auth()->id())
             ->where('election_id', $election->id)
-            ->where('position', Candidate::POSITION_PRESIDENT)
             ->exists();
 
-        $hasVice = Vote::where('user_id', auth()->id())
-            ->where('election_id', $election->id)
-            ->where('position', Candidate::POSITION_VICE)
-            ->exists();
-
-        $hasSenators = Vote::where('user_id', auth()->id())
-            ->where('election_id', $election->id)
-            ->where('position', Candidate::POSITION_SENATOR)
-            ->exists();
-
-        if ($hasPresident || $hasVice || $hasSenators) {
+        if ($hasVotes) {
             return back()->withErrors(['election_id' => 'You have already submitted votes for this election.'])->withInput();
         }
 
@@ -96,8 +102,8 @@ class VoteController extends Controller
             return back()->withErrors(['election_id' => 'Selected candidates must belong to the chosen election and position.'])->withInput();
         }
 
-        $senatorCandidates = $request->input('senator_candidates', []);
-        $senatorCandidates = array_filter($senatorCandidates);
+        $requestedSenatorCandidates = array_values(array_filter($request->input('senator_candidates', [])));
+        $senatorCandidates = $requestedSenatorCandidates;
 
         if ($election->candidates->where('position', Candidate::POSITION_SENATOR)->isNotEmpty() && count($senatorCandidates) === 0) {
             return back()->withErrors(['senator_candidates' => 'Please select one or more senator candidates.'])->withInput();
@@ -113,7 +119,7 @@ class VoteController extends Controller
             ->pluck('id')
             ->toArray();
 
-        if (count($senatorCandidates) !== count($request->input('senator_candidates', []))) {
+        if (count($senatorCandidates) !== count($requestedSenatorCandidates)) {
             return back()->withErrors(['senator_candidates' => 'Senator selections must belong to the chosen election.'])->withInput();
         }
 
@@ -157,15 +163,13 @@ class VoteController extends Controller
             'senators' => Candidate::whereIn('id', $senatorCandidates)->pluck('name')->toArray(),
         ]);
 
-        // If the user requested a printed copy, redirect to the receipt page.
-        // Otherwise return to dashboard.
         $wantPrint = filter_var($request->input('want_print'), FILTER_VALIDATE_BOOLEAN);
 
         if ($wantPrint) {
             return redirect()->route('votes.receipt');
         }
 
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')->with('success', 'Your ballot has been submitted successfully.');
     }
 
     public function receipt()

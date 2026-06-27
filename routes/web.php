@@ -5,7 +5,9 @@ use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ElectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VoteController;
+use App\Models\Candidate;
 use App\Models\Election;
+use App\Models\Vote;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -13,9 +15,17 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $activeElections = Election::active()->get();
+    $user = auth()->user();
 
-    return view('dashboard', compact('activeElections'));
+    if ($user->is_admin) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    $activeElections = Election::active()->withCount('candidates')->orderBy('end_at')->get();
+    $votedElectionIds = Vote::where('user_id', $user->id)->pluck('election_id')->unique();
+    $submittedVotes = Vote::where('user_id', $user->id)->with(['candidate', 'election'])->latest()->get();
+
+    return view('dashboard', compact('activeElections', 'votedElectionIds', 'submittedVotes'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -32,7 +42,17 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('elections/{election}/analytics', [AnalyticsController::class, 'dashboard'])->name('elections.analytics');
     Route::get('api/elections/{election}/live-results', [AnalyticsController::class, 'liveResults'])->name('elections.liveResults');
     Route::get('admin', function () {
-        return view('admin.dashboard');
+        return view('admin.dashboard', [
+            'totalElections' => Election::count(),
+            'activeElections' => Election::active()->count(),
+            'totalCandidates' => Candidate::count(),
+            'totalBallots' => Vote::query()
+                ->select('user_id', 'election_id')
+                ->distinct()
+                ->get()
+                ->count(),
+            'recentElections' => Election::withCount('candidates')->latest()->take(5)->get(),
+        ]);
     })->name('admin.dashboard');
 });
 

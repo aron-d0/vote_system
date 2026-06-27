@@ -10,7 +10,10 @@ class ElectionController extends Controller
 {
     public function index()
     {
-        $elections = Election::all();
+        $elections = Election::withCount(['candidates', 'votes'])
+            ->orderByDesc('start_at')
+            ->get();
+
         return view('elections.index', compact('elections'));
     }
 
@@ -60,7 +63,9 @@ class ElectionController extends Controller
 
     public function results(Election $election)
     {
-        $candidates = $election->candidates()->withCount('votes')->get();
+        $candidates = $election->candidates()
+            ->withCount(['votes' => fn ($query) => $query->where('election_id', $election->id)])
+            ->get();
 
         $groupedCandidates = $candidates->groupBy('position');
         $winnerCounts = [

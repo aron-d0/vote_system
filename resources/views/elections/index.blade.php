@@ -2,80 +2,66 @@
 
 @section('content')
 <div class="py-8">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Elections</h1>
-
-    <!-- Add Election -->
-    <a href="{{ route('elections.create') }}" 
-       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition">
-        + Add Election
-    </a>
-
-    <!-- Elections Grid -->
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
-        @foreach($elections as $election)
-            <div class="border rounded-lg bg-white dark:bg-gray-800 shadow hover:shadow-lg transition p-6">
-                <!-- Header -->
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                            {{ $election->title }}
-                        </h2>
-                        <p class="text-sm text-gray-500">
-                            {{ optional($election->start_at)->format('M d, Y H:i') }} 
-                            &ndash; 
-                            {{ optional($election->end_at)->format('M d, Y H:i') }}
-                        </p>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex flex-wrap gap-2">
-                        <!-- Edit -->
-                        <a href="{{ route('elections.edit', $election->id) }}" 
-                           class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md shadow 
-                                  hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-                            Edit
-                        </a>
-
-                        <!-- Results -->
-                        @if(auth()->user()->is_admin)
-                            <a href="{{ route('elections.results', $election->id) }}" 
-                               class="px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-md shadow 
-                                      hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1">
-                                Results
-                            </a>
-                        @endif
-
-                        <!-- Vote / Closed -->
-                        @if($election->isActive())
-                            <a href="{{ route('votes.election.create', $election->id) }}" 
-                               class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md shadow 
-                                      hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
-                                Vote
-                            </a>
-                        @else
-                            <span class="px-4 py-2 text-sm font-semibold text-gray-400 bg-gray-100 rounded-md">
-                                Closed
-                            </span>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Description -->
-                @if($election->description)
-                    <p class="mt-3 text-gray-700 dark:text-gray-300">{{ $election->description }}</p>
-                @endif
-
-                <!-- Delete -->
-                <form action="{{ route('elections.destroy', $election->id) }}" method="POST" class="mt-4">
-                    @csrf @method('DELETE')
-                    <button type="submit" 
-                            class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md shadow 
-                                   hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-                        Delete
-                    </button>
-                </form>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-indigo-600">Admin</p>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Elections</h1>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Create election windows, monitor readiness, and review results.</p>
             </div>
-        @endforeach
+            <a href="{{ route('elections.create') }}" class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+                Add Election
+            </a>
+        </div>
+
+        <div class="grid gap-5">
+            @forelse($elections as $election)
+                @php
+                    $isActive = $election->isActive();
+                    $hasEnded = $election->end_at && $election->end_at->lt(now());
+                @endphp
+
+                <article class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ $election->title }}</h2>
+                                @if($isActive)
+                                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Open</span>
+                                @elseif($hasEnded)
+                                    <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">Closed</span>
+                                @else
+                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">Scheduled</span>
+                                @endif
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ $election->description ?: 'No description provided.' }}</p>
+                            <div class="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
+                                <span>{{ optional($election->start_at)->format('M d, Y h:i A') }} - {{ optional($election->end_at)->format('M d, Y h:i A') }}</span>
+                                <span>{{ $election->candidates_count }} candidates</span>
+                                <span>{{ $election->votes_count }} vote records</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('elections.results', $election) }}" class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700">Results</a>
+                            <a href="{{ route('elections.analytics', $election) }}" class="rounded-md bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700">Analytics</a>
+                            <a href="{{ route('elections.edit', $election) }}" class="rounded-md border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700">Edit</a>
+                            <form action="{{ route('elections.destroy', $election) }}" method="POST" onsubmit="return confirm('Delete this election and all related candidates/votes?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-800">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">No elections yet</h2>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Create the first election before adding candidates.</p>
+                    <a href="{{ route('elections.create') }}" class="mt-5 inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Create Election</a>
+                </div>
+            @endforelse
+        </div>
     </div>
 </div>
 @endsection

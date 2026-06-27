@@ -74,6 +74,39 @@ test('a voter cannot submit a second ballot for the same election', function () 
     expect(Vote::where('user_id', $user->id)->where('election_id', $election->id)->count())->toBe(1);
 });
 
+test('admin users are redirected away from voter ballot screens', function () {
+    [$election] = createElectionWithCandidates();
+    $admin = User::factory()->create([
+        'is_admin' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('votes.election.create', $election))
+        ->assertRedirect(route('admin.dashboard', absolute: false))
+        ->assertSessionHas('info');
+});
+
+test('voter ballot history groups submitted votes by election', function () {
+    [$election, $president, $vicePresident, $senators] = createElectionWithCandidates();
+    $user = User::factory()->create();
+
+    foreach (array_merge([$president, $vicePresident], $senators->all()) as $candidate) {
+        Vote::create([
+            'user_id' => $user->id,
+            'candidate_id' => $candidate->id,
+            'election_id' => $election->id,
+            'position' => $candidate->position,
+        ]);
+    }
+
+    $this->actingAs($user)
+        ->get(route('votes.index'))
+        ->assertOk()
+        ->assertSee('Student Council 2026')
+        ->assertSee('President Candidate')
+        ->assertSee('5 recorded votes');
+});
+
 test('an admin API token can create an election through admin middleware', function () {
     $admin = User::factory()->create([
         'is_admin' => true,
