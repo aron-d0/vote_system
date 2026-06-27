@@ -55,10 +55,16 @@ Create the SQLite database if it does not exist:
 touch database/database.sqlite
 ```
 
-Run migrations and seeders:
+Run migrations:
 
 ```bash
-php artisan migrate --seed
+php artisan migrate
+```
+
+Seed only when you intentionally want the default admin account and sample election data:
+
+```bash
+php artisan db:seed
 ```
 
 Build frontend assets:
@@ -96,21 +102,22 @@ Replace `your-railway-domain.up.railway.app` with the actual Railway domain. The
 
 Do not set `DB_DATABASE` to a local machine path such as `C:\Users\...` or `/Users/...` on Railway. The Docker startup script creates and uses the SQLite database inside the deployed container.
 
+The Docker startup command runs migrations automatically. It does not seed by default. To seed on a deployment, set `SEED_DATABASE=true` deliberately, deploy once, then remove or set it back to `false` so accounts are not recreated or changed every restart.
+
 ## Default Accounts
 
-After running the seeders, the following accounts are available:
+After running the seeders, the following admin account is available:
 
 | Role | Email | Password |
 | --- | --- | --- |
 | Admin | admin@example.com | password123 |
-| Voter | test@example.com | password |
 
 Newly registered users are not logged in automatically. After registration, users are redirected to the login page and must enter their credentials before accessing the dashboard.
 
 ## Web Authentication Flow
 
 1. Open the system in the browser.
-2. Register a voter account or use one of the seeded accounts.
+2. Register a voter account.
 3. Log in using email and password.
 4. The dashboard redirects users based on their role:
    - Admins can manage elections, candidates, results, and analytics.

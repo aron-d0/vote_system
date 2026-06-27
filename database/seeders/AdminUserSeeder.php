@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Seeder;
 
 class AdminUserSeeder extends Seeder
 {
@@ -13,13 +12,18 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin User',
-                'password' => bcrypt('password123'),
-                'is_admin' => true,
-            ]
-        );
+        $email = strtolower(trim((string) env('ADMIN_EMAIL', 'admin@example.com')));
+        $password = (string) env('ADMIN_PASSWORD', 'password123');
+
+        $admin = User::firstOrNew(['email' => $email]);
+
+        $admin->name = $admin->exists ? $admin->name : (string) env('ADMIN_NAME', 'Admin User');
+        $admin->is_admin = true;
+
+        if (! $admin->exists) {
+            $admin->password = $password;
+        }
+
+        $admin->save();
     }
 }

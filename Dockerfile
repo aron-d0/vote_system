@@ -46,4 +46,4 @@ EXPOSE 8080
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
-CMD ["sh", "-c", "php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+CMD ["sh", "-c", "php artisan migrate --force && if [ \"${SEED_DATABASE:-false}\" = \"true\" ]; then php artisan db:seed --force; fi && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
