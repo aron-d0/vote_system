@@ -4,7 +4,7 @@ use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Auth;
 
-test('seeded admin account can authenticate with documented password', function () {
+test('seeded default accounts can authenticate with documented passwords', function () {
     $this->seed(DatabaseSeeder::class);
 
     expect(Auth::attempt([
@@ -12,7 +12,13 @@ test('seeded admin account can authenticate with documented password', function 
         'password' => 'password123',
     ]))->toBeTrue();
 
-    expect(User::where('email', 'test@example.com')->exists())->toBeFalse();
+    Auth::logout();
+
+    expect(Auth::attempt([
+        'email' => 'test@example.com',
+        'password' => 'password',
+    ]))->toBeTrue();
+
     expect(User::where('email', 'mariphilmarigmen11@gmail.com')->exists())->toBeFalse();
     expect(User::where('email', 'aron@example.com')->exists())->toBeFalse();
 });
