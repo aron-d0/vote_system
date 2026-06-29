@@ -35,7 +35,9 @@
             <!-- President Chart -->
             <div class="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700">
                 <h2 class="text-xl font-semibold text-white mb-4">President Votes</h2>
-                <canvas id="presidentChart"></canvas>
+                <div class="h-72">
+                    <canvas id="presidentChart"></canvas>
+                </div>
                 <div class="mt-4 space-y-1 text-sm text-gray-300">
                     @foreach($positionResults['President'] as $candidate)
                         <div class="flex justify-between">
@@ -49,7 +51,9 @@
             <!-- Vice President Chart -->
             <div class="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700">
                 <h2 class="text-xl font-semibold text-white mb-4">Vice President Votes</h2>
-                <canvas id="viceChart"></canvas>
+                <div class="h-72">
+                    <canvas id="viceChart"></canvas>
+                </div>
                 <div class="mt-4 space-y-1 text-sm text-gray-300">
                     @foreach($positionResults['Vice President'] as $candidate)
                         <div class="flex justify-between">
@@ -63,7 +67,9 @@
             <!-- Senator Chart -->
             <div class="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700">
                 <h2 class="text-xl font-semibold text-white mb-4">Top 5 Senators</h2>
-                <canvas id="senatorChart"></canvas>
+                <div class="h-72">
+                    <canvas id="senatorChart"></canvas>
+                </div>
                 <div class="mt-4 space-y-1 text-sm text-gray-300">
                     @foreach($positionResults['Senator']->take(5) as $candidate)
                         <div class="flex justify-between">
@@ -77,7 +83,7 @@
 
         <!-- Auto-refresh Info -->
         <div class="mt-10 bg-blue-900 border border-blue-600 p-4 rounded-lg text-blue-200">
-            <p>💡 Charts update every 10 seconds for real-time monitoring.</p>
+            <p>Charts update every 10 seconds for real-time monitoring.</p>
         </div>
     </div>
 </div>
@@ -87,6 +93,7 @@
     const chartConfig = {
         responsive: true,
         maintainAspectRatio: false,
+        resizeDelay: 150,
         plugins: {
             legend: {
                 labels: { color: '#d1d5db' }

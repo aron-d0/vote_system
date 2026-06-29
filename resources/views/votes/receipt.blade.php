@@ -1,44 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto py-8">
-    <div class="flex flex-col gap-4 mb-6">
-        <div>
-            <h1 class="text-3xl font-bold">Voting Receipt</h1>
-            <p class="text-sm text-gray-500">Your vote has been successfully recorded. Review your selections below.</p>
-        </div>
-        <div class="flex gap-3">
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold cursor-pointer">🖨️ Print Receipt</button>
-            <a href="{{ route('dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded font-semibold">Back to Dashboard</a>
-        </div>
-    </div>
-
-    <div class="rounded-lg border bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-semibold mb-3">Election</h2>
-        <p class="text-lg">{{ $receipt['election'] }}</p>
-
-        <div class="mt-6 grid gap-4 md:grid-cols-3">
-            <div class="rounded-lg border p-4 bg-gray-50">
-                <h3 class="font-semibold text-lg mb-2">President</h3>
-                <p>{{ $receipt['president'] }}</p>
+<div class="py-8">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-indigo-600 dark:text-indigo-400">Ballot submitted</p>
+                <h1 class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">Voting Receipt</h1>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Your selections were recorded successfully.</p>
             </div>
-            <div class="rounded-lg border p-4 bg-gray-50">
-                <h3 class="font-semibold text-lg mb-2">Vice President</h3>
-                <p>{{ $receipt['vice_president'] }}</p>
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <button onclick="window.print()" class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+                    Print Receipt
+                </button>
+                <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700">
+                    Back to Dashboard
+                </a>
             </div>
-            <div class="rounded-lg border p-4 bg-gray-50 md:col-span-3">
-                <h3 class="font-semibold text-lg mb-2">Senators</h3>
+        </div>
+
+        <section class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="border-b border-gray-200 bg-gray-50 px-6 py-5 dark:border-gray-700 dark:bg-gray-900">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Election</p>
+                <h2 class="mt-1 text-xl font-semibold text-gray-900 dark:text-white">{{ $receipt['election'] }}</h2>
+            </div>
+
+            <div class="grid gap-0 divide-y divide-gray-100 dark:divide-gray-700 md:grid-cols-2 md:divide-x md:divide-y-0">
+                <div class="p-6">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">President</p>
+                    <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{{ $receipt['president'] }}</p>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Vice President</p>
+                    <p class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">{{ $receipt['vice_president'] }}</p>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 p-6 dark:border-gray-700">
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Senators</p>
+                        <h3 class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ count($receipt['senators']) }} selected
+                        </h3>
+                    </div>
+                </div>
+
                 @if(count($receipt['senators']))
-                    <ul class="list-disc list-inside space-y-1">
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
                         @foreach($receipt['senators'] as $senator)
-                            <li>{{ $senator }}</li>
+                            <div class="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                {{ $senator }}
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 @else
-                    <p class="text-gray-500">No senators selected.</p>
+                    <p class="mt-4 rounded-md border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">No senators selected.</p>
                 @endif
             </div>
-        </div>
+        </section>
     </div>
 </div>
 @endsection
