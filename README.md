@@ -102,7 +102,7 @@ Replace `your-railway-domain.up.railway.app` with the actual Railway domain. The
 
 Do not set `DB_DATABASE` to a local machine path such as `C:\Users\...` or `/Users/...` on Railway. The Docker startup script creates and uses the SQLite database inside the deployed container.
 
-The Docker startup command runs migrations automatically. It does not seed by default. To seed on a deployment, set `SEED_DATABASE=true` deliberately, deploy once, then remove or set it back to `false` so accounts are not recreated or changed every restart.
+The Docker startup command runs migrations and seeders automatically. The seeders are designed to be safe to rerun: they keep the admin account available, do not create demo voter accounts, and do not reset an existing admin password.
 
 ## Default Accounts
 
